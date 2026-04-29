@@ -1,0 +1,186 @@
+<view class="page">
+  <view class="header">
+    <view class="header-side"></view>
+    <view class="brand">
+      <view class="title">{{t.title}}</view>
+      <view class="title-bar"></view>
+    </view>
+    <view class="header-side right">
+      <button class="lang-button" bindtap="toggleLang">{{lang == 'zh' ? 'EN' : '中文'}}</button>
+    </view>
+  </view>
+
+  <block wx:if="{{gameStatus == 'WELCOME'}}">
+    <view class="welcome">
+      <view class="welcome-card">
+        <view class="plane-icon">✈</view>
+        <view class="welcome-title">{{t.welcomeTitle}}</view>
+        <view class="welcome-desc">{{t.welcomeDesc}}</view>
+        <button class="btn primary wide" bindtap="startSetup">{{t.enterReadiness}}</button>
+      </view>
+    </view>
+  </block>
+
+  <block wx:elif="{{gameStatus == 'SETUP'}}">
+    <view class="setup panel">
+      <view class="panel-head">
+        <view class="panel-title">{{t.setupTitle}}</view>
+        <view class="count-pill">{{t.planeCount}} {{playerPlanes.length}} / {{planeCount}}</view>
+      </view>
+
+      <view class="difficulty-block">
+        <view class="difficulty-title">{{t.difficultyTitle}}</view>
+        <view class="difficulty-row">
+          <button
+            wx:for="{{difficultyOptions}}"
+            wx:key="key"
+            class="difficulty-button {{difficulty == item.key ? 'active' : ''}}"
+            data-difficulty="{{item.key}}"
+            bindtap="changeDifficulty"
+          >
+            {{item.label}}
+          </button>
+        </view>
+      </view>
+
+      <view class="board">
+        <view
+          wx:for="{{playerCells}}"
+          wx:key="key"
+          class="{{item.classes}}"
+          data-x="{{item.x}}"
+          data-y="{{item.y}}"
+          bindtap="onSetupCellTap"
+        >
+          <view wx:if="{{item.miss}}" class="miss-dot"></view>
+          <view wx:if="{{item.hit}}" class="hit-mark"></view>
+          <view wx:if="{{item.kill}}" class="kill-mark">×</view>
+          <view wx:if="{{item.showHeadRing}}" class="head-ring {{item.isSelected ? 'selected' : ''}}"></view>
+          <view wx:if="{{item.showBodyRing}}" class="body-ring"></view>
+        </view>
+      </view>
+
+      <view class="direction-row">
+        <button
+          wx:for="{{directions}}"
+          wx:key="key"
+          class="dir-button {{currentDir == item.key ? 'active' : ''}}"
+          data-dir="{{item.key}}"
+          bindtap="changeDirection"
+        >
+          {{item.label}}
+        </button>
+      </view>
+
+      <block wx:if="{{selectedPlaneId}}">
+        <view class="action-grid">
+          <button class="btn danger" bindtap="deleteSelected">{{t.withdraw}}</button>
+          <button class="btn success" bindtap="confirmPlane">{{t.confirmPos}}</button>
+        </view>
+      </block>
+      <block wx:else>
+        <view class="action-grid">
+          <button class="btn secondary" bindtap="randomizePlayer">{{t.smartDeploy}}</button>
+          <button class="btn primary {{canStart ? '' : 'disabled'}}" disabled="{{!canStart}}" bindtap="startGame">{{t.startBattle}}</button>
+        </view>
+      </block>
+
+      <view class="tip">{{selectedPlaneId ? t.tipAdjust : t.tipNext}}</view>
+      <button class="clear-button" bindtap="clearAirspace">{{t.clearAirspace}}</button>
+    </view>
+  </block>
+
+  <block wx:elif="{{gameStatus == 'PLAYING'}}">
+    <view class="playing">
+      <view class="battle-meta">
+        <view class="battle-difficulty">{{t.difficultyTitle}}：{{difficultyName}}</view>
+      </view>
+
+      <view class="board-panel">
+        <view class="board-top">
+          <view class="section-label enemy-label">
+            <view class="status-dot {{hasFinished ? '' : 'pulse'}}"></view>
+            {{t.enemyAirspace}}
+          </view>
+          <view class="plane-dots">
+            <view wx:for="{{enemyPlaneDots}}" wx:key="key" class="{{item.classes}}"></view>
+          </view>
+        </view>
+
+        <view class="board">
+          <view
+            wx:for="{{enemyCells}}"
+            wx:key="key"
+            class="{{item.classes}}"
+            data-x="{{item.x}}"
+            data-y="{{item.y}}"
+            bindtap="onEnemyCellTap"
+          >
+            <view wx:if="{{item.miss}}" class="miss-dot"></view>
+            <view wx:if="{{item.hit}}" class="hit-mark"></view>
+            <view wx:if="{{item.kill}}" class="kill-mark">×</view>
+          </view>
+        </view>
+
+        <view wx:if="{{hasFinished}}" class="end-strip">
+          <view class="end-title">{{t.combatEnded}}</view>
+          <button class="btn warning compact" bindtap="viewReport">{{t.viewReport}}</button>
+        </view>
+        <view wx:else class="turn-hint {{isPlayerTurn ? 'active' : ''}}">
+          {{isPlayerTurn ? t.yourTurn : t.enemyThinking}}
+        </view>
+      </view>
+
+      <view class="board-panel">
+        <view class="board-top">
+          <view class="section-label own-label">{{t.myFleet}}</view>
+          <view class="plane-dots">
+            <view wx:for="{{playerPlaneDots}}" wx:key="key" class="{{item.classes}}"></view>
+          </view>
+        </view>
+
+        <view class="board">
+          <view wx:for="{{playerCells}}" wx:key="key" class="{{item.classes}}">
+            <view wx:if="{{item.miss}}" class="miss-dot"></view>
+            <view wx:if="{{item.hit}}" class="hit-mark"></view>
+            <view wx:if="{{item.kill}}" class="kill-mark">×</view>
+            <view wx:if="{{item.showHeadRing}}" class="head-ring"></view>
+          </view>
+        </view>
+
+        <view class="log-panel">
+          <view class="log-title">{{t.radarLog}}</view>
+          <view wx:for="{{logs}}" wx:key="*this" class="log-line {{index == 0 ? 'latest' : ''}}">{{item}}</view>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <block wx:elif="{{gameStatus == 'OVER'}}">
+    <view class="result-mask">
+      <view class="result-card">
+        <view class="result-icon">{{winner == 'PLAYER' ? '🏆' : '⚑'}}</view>
+        <view class="result-title">{{winner == 'PLAYER' ? t.victory : t.defeat}}</view>
+        <view class="result-desc">{{winner == 'PLAYER' ? t.victoryDesc : t.defeatDesc}}</view>
+        <view class="stats-panel">
+          <view class="stats-title">{{t.recentStatsTitle}}</view>
+          <view class="stats-row">
+            <view class="stats-item player">
+              <view class="stats-number">{{recentStats.playerWins}}</view>
+              <view class="stats-label">{{t.playerWins}}</view>
+            </view>
+            <view class="stats-item enemy">
+              <view class="stats-number">{{recentStats.enemyWins}}</view>
+              <view class="stats-label">{{t.enemyWins}}</view>
+            </view>
+            <view class="stats-item total">
+              <view class="stats-number">{{recentStats.total}}</view>
+              <view class="stats-label">{{t.totalBattles}}</view>
+            </view>
+          </view>
+        </view>
+        <button class="btn primary wide" bindtap="returnBase">{{t.returnBase}}</button>
+      </view>
+    </view>
+  </block>
+</view>

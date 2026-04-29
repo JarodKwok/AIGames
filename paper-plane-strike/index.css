@@ -1,0 +1,10 @@
+body {
+  margin: 0;
+  background-color: #f0f9ff;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.grid-cell {
+  aspect-ratio: 1 / 1;
+}
+

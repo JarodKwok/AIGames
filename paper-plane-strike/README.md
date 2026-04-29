@@ -1,20 +1,35 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Paper Plane Strike
 
-# Run and deploy your AI Studio app
+10x10 纸飞机对战游戏。当前保留 Web 版，并新增了原生微信小程序版。
 
-This contains everything you need to run your app locally.
+## Web 版
 
-View your app in AI Studio: https://ai.studio/apps/drive/1XsvZnAQvteqdq3r-0IxUosR-Cya5s-u2
+```bash
+npm install
+npm run dev
+npm run build
+```
 
-## Run Locally
+当前 Web 版可以构建运行。样式主要来自 Tailwind CDN，`index.css` 只保留基础页面样式。
 
-**Prerequisites:**  Node.js
+## 微信小程序版
 
+小程序源码在 `miniprogram/`，根目录 `project.config.json` 已配置 `miniprogramRoot`。
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+使用方式：
+
+1. 打开微信开发者工具。
+2. 导入本项目根目录。
+3. 将 `project.config.json` 里的 `appid` 从 `touristappid` 改成自己的小程序 AppID。
+4. 编译运行，确认无误后按微信平台流程上传审核。
+
+小程序版功能：
+
+- 手动布阵、随机布阵
+- 电脑难度选择：简单、中级、困难
+- 方向切换和位置确认
+- 玩家攻击、AI 回合
+- 命中、击毁、胜负结算
+- 开场循环音乐、结算短曲、本地音效
+- 最近 10 局胜负统计
+- 中英文切换

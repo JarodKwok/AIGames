@@ -1,0 +1,14 @@
+{
+  "pages": [
+    "pages/index/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "王牌飞行员",
+    "navigationBarBackgroundColor": "#f0f9ff",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f0f9ff"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}
+
